@@ -1,0 +1,33 @@
+>>> user_id=spark.read.csv('hdfs:/user/bm106/pub/goodreads/user_id_map.csv', schema='user_csv INT, user STRING')
+
+>>> interactions=spark.read.csv('hdfs:/user/bm106/pub/goodreads/goodreads_interactions.csv', schema='user_id INT, book_id INT, is_read INT, rating INT, is_reviewed INT')
+
+>>> user_id.createOrReplaceTempView('user_id')
+
+>>> interactions.createOrReplaceTempView('int')
+
+>>> drop1=spark.sql('select * from user_id where user_csv is not null')
+
+>>> user_60=user_id.sample(False, 0.6, seed=0)
+
+>>> user_60.createOrReplaceTempView('user_60')
+
+>>> user_40=spark.sql('select * from user_id where user_id.user_csv not in (select user_csv from user_60)')
+
+>>> user_40.createOrReplaceTempView('user_40')
+
+>>> user_val=user_40.sample(False, 0.5, seed=0)
+
+>>> user_val.createOrReplaceTempView('user_val')
+
+>>> user_test=spark.sql('select * from user_40 where user_csv not in (select user_csv from user_val)')
+
+>>> train60=spark.sql('SELECT int.user_id, int.book_id, int.is_read, int.rating FROM user_60 inner join int on user_60.user_csv=int.user_id')
+
+>>> val=spark.sql('SELECT int.user_id, int.book_id, int.is_read, int.rating FROM user_val inner join int on user_val.user_csv=int.user_id')
+
+>>> user_test.createOrReplaceTempView('user_test')
+
+>>> test=spark.sql('SELECT int.user_id, int.book_id, int.is_read, int.rating FROM user_test inner join int on user_test.user_csv=int.user_id')
+
+>>> val.write.csv('hdfs:/user/yz2865/val.csv')
