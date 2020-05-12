@@ -109,7 +109,7 @@ def get_best_als(train_data, val_data, maxIter = 10, regs = [0.001, 0.01, 0.05, 
     print('\nThe best model has {} latent factors and '
           'regularization = {}'.format(best_rank, best_regularization))
     
-    # save the best modelas output file under the current path for later access
+    # save the best model as output under the current path for later access
     # this saves the model as a directory of meta data files
     try:
         best_model.save("1_perc_csv/modelSaveOut") # this saves your model in your HDFS home directory
@@ -119,7 +119,7 @@ def get_best_als(train_data, val_data, maxIter = 10, regs = [0.001, 0.01, 0.05, 
         print("model already saved under '1_perc_csv/' as 'modelSaveOut', overwrite it")
     return best_model, best_rank, best_regularization
 
-grid search and select best model
+# grid search and select best model
 start_time = time.time()
 final_model, best_rank, best_reg = get_best_als(train_data, val_data)
 print ('Total Runtime for tuning: {:.2f} seconds'.format(time.time() - start_time))
@@ -180,7 +180,7 @@ def plot_learning_curve(train_data, val_data, reg, ranking, arr_iters = list(ran
 
 # we will make a table instead
 start_time = time.time()
-learning_errors = plot_learning_curve(train_data, val_data, reg=0.2, ranking=20, arr_iters=list(range(1,11)))
+learning_errors = plot_learning_curve(train_data, val_data, reg=best_reg, ranking=best_rank, arr_iters=list(range(1,11)))
 learning_table = pd.DataFrame({'maxIter':list(range(1,11)), 'rmse':learning_errors})
 print(learning_table.to_string(index=False)) # show table for learning curve
 
